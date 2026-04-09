@@ -26,7 +26,7 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className={`fixed top-6 right-6 z-[9999] px-4 py-2 font-mono text-[10px] tracking-widest uppercase transition-all duration-500 border rounded-full backdrop-blur-md
+      className={`fixed top-4 right-4 md:top-6 md:right-6 z-[9999] px-3 py-1.5 md:px-4 md:py-2 font-mono text-[9px] md:text-[10px] tracking-widest uppercase transition-all duration-500 border rounded-full backdrop-blur-md
         ${isLight 
           ? 'bg-white/50 border-black/10 text-black hover:bg-white inset-shadow' 
           : 'bg-black/50 border-white/10 text-film-cream hover:bg-black shadow-[0_0_15px_rgba(201,168,76,0.1)]'

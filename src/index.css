@@ -104,13 +104,65 @@ section {
   position: relative;
 }
 
-/* Smooth scroll wrapper — fixed position, full viewport */
+/* Smooth scroll wrapper — fixed on desktop, relative on mobile */
 #smooth-wrapper {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   will-change: transform;
+}
+
+@media (max-width: 768px) {
+  #smooth-wrapper {
+    position: relative;
+    transform: none !important;
+  }
+  body {
+    height: auto !important;
+  }
+
+  /* Remove padding that was compensating for FilmBorders on mobile */
+  .camera-section {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  /* Intro title — smaller on mobile */
+  #intro h1 {
+    font-size: clamp(2.2rem, 10vw, 4rem) !important;
+    letter-spacing: 0.15em !important;
+  }
+
+  /* Section headings */
+  #short-films h2,
+  #writing h2,
+  #documentaries h2,
+  #shelf h2 {
+    font-size: clamp(1.8rem, 8vw, 3rem) !important;
+  }
+
+  /* Documentary stills grid — stack on mobile */
+  .doc-card .grid-cols-3 {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* Stats row — 2 cols on mobile already set, just ensure spacing */
+  .stats-row {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  /* Film card info always visible on mobile (no hover) */
+  .film-info {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+  }
+
+  /* Narration text — smaller on mobile */
+  .fixed.bottom-16 p {
+    font-size: 0.75rem !important;
+  }
 }
 
 /* Ambient sound bar pulse */

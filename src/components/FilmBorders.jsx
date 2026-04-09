@@ -30,7 +30,7 @@ export default function FilmBorders() {
   return (
     <>
       <div 
-        className="fixed left-0 top-0 bottom-0 w-8 md:w-16 border-r backdrop-blur-md z-[60] pointer-events-none flex flex-col justify-between items-center py-12"
+        className="hidden md:flex fixed left-0 top-0 bottom-0 w-8 md:w-16 border-r backdrop-blur-md z-[60] pointer-events-none flex-col justify-between items-center py-12"
         style={{ borderColor: 'var(--color-gray)', backgroundColor: 'transparent' }}
       >
         {/* Technical Hash Marks (16mm style) */}
@@ -82,7 +82,7 @@ export default function FilmBorders() {
       </div>
 
       <div 
-        className="fixed right-0 top-0 bottom-0 w-8 md:w-16 border-l backdrop-blur-md z-[60] pointer-events-none flex flex-col justify-between items-center py-12"
+        className="hidden md:flex fixed right-0 top-0 bottom-0 w-8 md:w-16 border-l backdrop-blur-md z-[60] pointer-events-none flex-col justify-between items-center py-12"
         style={{ borderColor: 'var(--color-gray)', backgroundColor: 'transparent' }}
       >
         {/* Technical Hash Marks */}

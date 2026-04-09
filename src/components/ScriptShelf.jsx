@@ -325,12 +325,14 @@ export default function ScriptShelf() {
   }, [lit])
 
   useEffect(() => {
-    gsap.fromTo(
-      listRef.current.querySelectorAll('.script-list-item'),
-      { y: 40, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.9, stagger: 0.07, ease: 'power3.out',
-        scrollTrigger: { trigger: listRef.current, start: 'top 82%' } }
-    )
+    if (listRef.current) {
+      gsap.fromTo(
+        listRef.current.querySelectorAll('.script-list-item'),
+        { y: 40, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.9, stagger: 0.07, ease: 'power3.out',
+          scrollTrigger: { trigger: listRef.current, start: 'top 82%' } }
+      )
+    }
     gsap.to(bgTextRef.current, {
       yPercent: -20, ease: 'none',
       scrollTrigger: { trigger: sectionRef.current, start: 'top bottom', end: 'bottom top', scrub: true },
@@ -366,98 +368,68 @@ export default function ScriptShelf() {
         <div className="mt-5 w-12 h-px bg-film-gold" />
       </div>
 
-      {/* ── Scene: lamp LEFT, books CENTER, plant RIGHT — all bottom-aligned ── */}
-      <div className="relative z-10 w-full max-w-[1100px] mx-auto px-6 lg:px-8">
+      {/* ── Desktop scene: lamp + books + plant ── */}
+      <div className="hidden lg:block relative z-10 w-full max-w-[1100px] mx-auto px-6 lg:px-8">
         <div className="flex items-end justify-center gap-0">
-
-          {/* Hanging bulb — left of books */}
           <HangingBulb lit={lit} onToggle={toggleLight} />
-
-          {/* Books column */}
           <div className="flex-1 flex flex-col items-center min-w-0">
-            {/* "Tap to read" hint — sparkles in dark */}
             <p className="font-mono text-[9px] tracking-[0.35em] uppercase mb-3 transition-colors duration-700 tap-hint"
-              style={{ color: lit ? 'rgba(201,168,76,0.55)' : 'rgba(255,255,255,0.22)',
-                       animation: lit ? 'none' : 'pulseLabel 3s ease-in-out infinite' }}>
+              style={{ color: lit ? 'rgba(201,168,76,0.55)' : 'rgba(255,255,255,0.22)', animation: lit ? 'none' : 'pulseLabel 3s ease-in-out infinite' }}>
               Tap a book to read
             </p>
-
-            {/* Books row */}
             <div ref={listRef} className="flex items-end justify-center gap-[2px] w-full">
-              {/* Left bookend */}
               <div className="w-4 h-[120px] rounded-sm mr-2 shadow-xl flex-shrink-0 transition-all duration-700"
-                style={{
-                  background: isLight
-                    ? 'linear-gradient(to bottom,#7a5a30,#5a3a10)'
-                    : lit ? 'linear-gradient(to bottom,#2a1e08,#160e04)' : 'linear-gradient(to bottom,#1c1c1c,#0a0a0a)',
-                  border: `1px solid ${isLight ? 'rgba(100,70,20,0.3)' : lit ? 'rgba(201,168,76,0.22)' : 'rgba(255,255,255,0.08)'}`,
-                }} />
-
+                style={{ background: isLight ? 'linear-gradient(to bottom,#7a5a30,#5a3a10)' : lit ? 'linear-gradient(to bottom,#2a1e08,#160e04)' : 'linear-gradient(to bottom,#1c1c1c,#0a0a0a)', border: `1px solid ${isLight ? 'rgba(100,70,20,0.3)' : lit ? 'rgba(201,168,76,0.22)' : 'rgba(255,255,255,0.08)'}` }} />
               {scripts.map((script) => {
                 const isHov = hoveredScript?.id === script.id
-                const w     = Math.max(34, Math.min(58, script.pages / 2.3))
+                const w = Math.max(34, Math.min(58, script.pages / 2.3))
                 return (
-                  <button key={script.id}
-                    onClick={() => setActiveScript(script)}
-                    onMouseEnter={() => setHoveredScript(script)}
-                    onMouseLeave={() => setHoveredScript(null)}
+                  <button key={script.id} onClick={() => setActiveScript(script)}
+                    onMouseEnter={() => setHoveredScript(script)} onMouseLeave={() => setHoveredScript(null)}
                     className="script-list-item relative flex-shrink-0 cursor-pointer focus:outline-none rounded-t-[2px]"
-                    style={{
-                      width: w, height: 220,
-                      background: `linear-gradient(160deg, ${script.color} 0%, ${script.spineColor} 100%)`,
-                      filter: isLight ? 'brightness(1.3) saturate(1.4)' : 'none',
-                      borderTop:   `1px solid ${isHov ? 'rgba(255,255,255,0.45)' : lit ? 'rgba(255,180,50,0.22)' : 'rgba(255,255,255,0.09)'}`,
-                      borderLeft:  `1px solid ${isHov ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.04)'}`,
-                      borderRight: '1px solid rgba(0,0,0,0.65)',
-                      transform: isHov ? 'translateY(-22px) scale(1.025)' : 'translateY(0) scale(1)',
-                      transition: 'transform 0.32s cubic-bezier(0.25,1,0.5,1), box-shadow 0.32s ease, border-color 0.6s ease',
-                      boxShadow: isHov
-                        ? `0 28px 48px rgba(0,0,0,0.95), 0 0 18px ${lit ? 'rgba(255,175,45,0.22)' : 'rgba(255,255,255,0.08)'}`
-                        : 'inset 0 0 12px rgba(0,0,0,0.85), -2px 0 4px rgba(0,0,0,0.4)',
-                      zIndex: isHov ? 50 : 10,
-                    }}>
-                    <span className="absolute inset-0 flex items-center justify-between py-3"
-                      style={{ writingMode:'vertical-rl', transform:'rotate(180deg)' }}>
+                    style={{ width: w, height: 220, background: `linear-gradient(160deg, ${script.color} 0%, ${script.spineColor} 100%)`, filter: isLight ? 'brightness(1.3) saturate(1.4)' : 'none', borderTop: `1px solid ${isHov ? 'rgba(255,255,255,0.45)' : lit ? 'rgba(255,180,50,0.22)' : 'rgba(255,255,255,0.09)'}`, borderLeft: `1px solid ${isHov ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.04)'}`, borderRight: '1px solid rgba(0,0,0,0.65)', transform: isHov ? 'translateY(-22px) scale(1.025)' : 'translateY(0) scale(1)', transition: 'transform 0.32s cubic-bezier(0.25,1,0.5,1), box-shadow 0.32s ease, border-color 0.6s ease', boxShadow: isHov ? `0 28px 48px rgba(0,0,0,0.95), 0 0 18px ${lit ? 'rgba(255,175,45,0.22)' : 'rgba(255,255,255,0.08)'}` : 'inset 0 0 12px rgba(0,0,0,0.85), -2px 0 4px rgba(0,0,0,0.4)', zIndex: isHov ? 50 : 10 }}>
+                    <span className="absolute inset-0 flex items-center justify-between py-3" style={{ writingMode:'vertical-rl', transform:'rotate(180deg)' }}>
                       <span className="font-mono text-[8px] uppercase tracking-widest pl-1 opacity-40 select-none pb-3">{script.genre}</span>
-                      <span className="font-serif text-[11px] tracking-[0.18em] transition-colors duration-300"
-                        style={{ color: isHov ? '#fff' : 'rgba(255,255,255,0.78)', fontWeight: 600 }}>
-                        {script.title}
-                      </span>
+                      <span className="font-serif text-[11px] tracking-[0.18em] transition-colors duration-300" style={{ color: isHov ? '#fff' : 'rgba(255,255,255,0.78)', fontWeight: 600 }}>{script.title}</span>
                     </span>
-                    {lit && <div style={{ position:'absolute', top:0, left:0, right:0, height:2,
-                      background:'linear-gradient(to right,transparent,rgba(255,180,50,0.35),transparent)',
-                      borderRadius:'2px 2px 0 0' }} />}
+                    {lit && <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(to right,transparent,rgba(255,180,50,0.35),transparent)', borderRadius:'2px 2px 0 0' }} />}
                   </button>
                 )
               })}
-
-              {/* Right bookend */}
               <div className="w-4 h-[120px] rounded-sm ml-2 shadow-xl flex-shrink-0 transition-all duration-700"
-                style={{
-                  background: isLight
-                    ? 'linear-gradient(to bottom,#7a5a30,#5a3a10)'
-                    : lit ? 'linear-gradient(to bottom,#2a1e08,#160e04)' : 'linear-gradient(to bottom,#1c1c1c,#0a0a0a)',
-                  border: `1px solid ${isLight ? 'rgba(100,70,20,0.3)' : lit ? 'rgba(201,168,76,0.22)' : 'rgba(255,255,255,0.08)'}`,
-                }} />
+                style={{ background: isLight ? 'linear-gradient(to bottom,#7a5a30,#5a3a10)' : lit ? 'linear-gradient(to bottom,#2a1e08,#160e04)' : 'linear-gradient(to bottom,#1c1c1c,#0a0a0a)', border: `1px solid ${isLight ? 'rgba(100,70,20,0.3)' : lit ? 'rgba(201,168,76,0.22)' : 'rgba(255,255,255,0.08)'}` }} />
             </div>
           </div>
-
-          {/* Snake plant — right side */}
           <SnakePlant sectionRef={sectionRef} lit={lit} isLight={isLight} />
         </div>
+        <div style={{ height: 11, background: isLight ? 'linear-gradient(to bottom,#8a6840,#6a4820)' : lit ? 'linear-gradient(to bottom,#2c2008,#160e04)' : 'linear-gradient(to bottom,#1a1400,#0a0800)', boxShadow: isLight ? '0 6px 20px rgba(0,0,0,0.25)' : lit ? '0 6px 28px rgba(0,0,0,0.95), 0 -1px 10px rgba(255,155,35,0.1)' : '0 6px 24px rgba(0,0,0,0.95)', borderTop: `1px solid ${isLight ? 'rgba(100,70,20,0.35)' : lit ? 'rgba(201,168,76,0.22)' : 'rgba(201,168,76,0.07)'}`, transition: 'background 0.9s ease, border-color 0.9s ease, box-shadow 0.9s ease' }} />
+      </div>
 
-        {/* Shelf board */}
-        <div style={{
-          height: 11,
-          background: isLight
-            ? 'linear-gradient(to bottom,#8a6840,#6a4820)'
-            : lit ? 'linear-gradient(to bottom,#2c2008,#160e04)' : 'linear-gradient(to bottom,#1a1400,#0a0800)',
-          boxShadow: isLight
-            ? '0 6px 20px rgba(0,0,0,0.25)'
-            : lit ? '0 6px 28px rgba(0,0,0,0.95), 0 -1px 10px rgba(255,155,35,0.1)' : '0 6px 24px rgba(0,0,0,0.95)',
-          borderTop: `1px solid ${isLight ? 'rgba(100,70,20,0.35)' : lit ? 'rgba(201,168,76,0.22)' : 'rgba(201,168,76,0.07)'}`,
-          transition: 'background 0.9s ease, border-color 0.9s ease, box-shadow 0.9s ease',
-        }} />
+      {/* ── Mobile script list ── */}
+      <div className="lg:hidden relative z-10 w-full px-6 mt-2">
+        <p className="font-mono text-[9px] tracking-[0.35em] uppercase mb-6 text-film-muted">Tap a script to read</p>
+        <div className="space-y-0 divide-y divide-white/5">
+          {scripts.map((script, i) => (
+            <button key={script.id} onClick={() => setActiveScript(script)}
+              className="w-full text-left py-5 flex items-start gap-4 group active:bg-white/[0.02] transition-colors">
+              <div className="flex-shrink-0 w-1 self-stretch rounded-full"
+                style={{ background: `linear-gradient(to bottom, ${script.spineColor}, ${script.color})`, filter: isLight ? 'brightness(1.3) saturate(1.4)' : 'none' }} />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-baseline gap-2 mb-1">
+                  <span className="font-mono text-film-gold/40 text-[9px] flex-shrink-0">{String(i+1).padStart(2,'0')}</span>
+                  <h3 className="font-serif text-film-cream text-base leading-tight truncate">{script.title}</h3>
+                </div>
+                <p className="font-mono text-film-muted text-[9px] tracking-wider uppercase">{script.type} · {script.genre}</p>
+                <p className="font-sans text-film-muted/60 text-xs mt-1 font-light leading-relaxed line-clamp-2">{script.logline}</p>
+              </div>
+              <div className="flex-shrink-0 text-right pt-0.5">
+                <p className="font-mono text-film-muted/50 text-[9px]">{script.pages}p</p>
+                <p className="font-mono text-film-gold/50 text-[9px] mt-0.5">{script.year}</p>
+              </div>
+            </button>
+          ))}
+        </div>
+        <div className="mt-0 h-[3px] rounded-full" style={{ background: isLight ? 'linear-gradient(to right,#8a6840,#6a4820)' : 'linear-gradient(to right,#1a1400,#2a2000,#1a1400)' }} />
       </div>
 
       {activeScript && <ScriptReader script={activeScript} onClose={() => setActiveScript(null)} />}

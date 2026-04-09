@@ -98,7 +98,7 @@ export default function AmbientToggle() {
     <button
       onClick={toggle}
       aria-label={playing ? 'Mute ambient sound' : 'Play ambient sound'}
-      className="fixed bottom-6 right-6 z-[9997] flex items-center gap-2 px-3 py-2 border border-white/10 bg-film-black/80 backdrop-blur-sm hover:border-film-gold/40 transition-colors duration-300 group"
+      className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-[9997] flex items-center gap-2 px-3 py-2 border border-white/10 bg-film-black/80 backdrop-blur-sm hover:border-film-gold/40 transition-colors duration-300 group"
     >
       {/* Waveform icon */}
       <span className="flex items-end gap-[3px] h-4">
