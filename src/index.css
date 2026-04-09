@@ -15,14 +15,14 @@
   }
 
   .light-mode {
-    --color-black: #f5f0e8;
-    --color-black-transparent: rgba(245, 240, 232, 0);
-    --color-dark: #e8e0d0;
-    --color-gray: #d4ccc0;
-    --color-muted: #555555;
-    --color-gold: #a6843c;
-    --color-cream: #090909;
-    --grid-line: rgba(0, 0, 0, 0.05);
+    --color-black: #f2ede4;
+    --color-black-transparent: rgba(242, 237, 228, 0);
+    --color-dark: #e2d9cc;
+    --color-gray: #ccc4b8;
+    --color-muted: #4a4540;
+    --color-gold: #8a6820;
+    --color-cream: #0d0a06;
+    --grid-line: rgba(0, 0, 0, 0.06);
   }
 }
 
@@ -33,6 +33,14 @@
       linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
     background-size: 80px 80px;
   }
+}
+
+/* Light mode grid is more visible */
+body.light-mode .bg-grid {
+  background-image:
+    linear-gradient(rgba(0,0,0,0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.07) 1px, transparent 1px);
+  background-size: 80px 80px;
 }
 
 * {
@@ -124,9 +132,68 @@ iframe {
   color-scheme: dark;
 }
 
+/* Filament idle sparkle in dark */
+@keyframes filamentSparkle {
+  0%, 100% { opacity: 0.28; }
+  50%       { opacity: 0.7;  }
+}
+.filament-idle {
+  animation: filamentSparkle 2.8s ease-in-out infinite;
+}
+
+/* Pull label pulse */
+@keyframes pulseLabel {
+  0%, 100% { opacity: 0.35; }
+  50%       { opacity: 0.7;  }
+}
+
 /* Dynamic Slugline Terminology based on theme */
 body .mode-ext-int::after { content: 'INT.'; }
 body.light-mode .mode-ext-int::after { content: 'EXT.'; }
 
 body .mode-day-night::after { content: 'NIGHT'; }
 body.light-mode .mode-day-night::after { content: 'DAY'; }
+
+/* ── Light mode shelf fixes ── */
+
+/* Shelf board — warm wood tone instead of near-black */
+body.light-mode #shelf > div:last-of-type > div:last-child {
+  background: linear-gradient(to bottom, #8a7050, #6a5030) !important;
+  border-top-color: rgba(100,70,20,0.3) !important;
+}
+
+/* Bookends — warm dark wood */
+body.light-mode .script-list-item ~ div,
+body.light-mode div[style*="from-film-gray"] {
+  background: linear-gradient(to bottom, #6a5030, #4a3820) !important;
+  border-color: rgba(100,70,20,0.3) !important;
+}
+
+/* Plant leaves — charcoal on cream, not invisible grey */
+body.light-mode .leaf path {
+  fill: #3a3530 !important;
+}
+body.light-mode .leaf line {
+  stroke: rgba(100,70,20,0.25) !important;
+}
+
+/* Pot — warm terracotta instead of near-black */
+body.light-mode #shelf .relative.z-20.flex-shrink-0 {
+  background: linear-gradient(to bottom, #7a5a3a, #5a3a1a) !important;
+  border-color: rgba(100,70,20,0.2) !important;
+}
+
+/* Book spines — saturate and brighten so colours pop on cream */
+body.light-mode .script-list-item {
+  filter: brightness(1.25) saturate(1.35) !important;
+}
+
+/* Hanging bulb wire — visible on light bg */
+body.light-mode #shelf svg line[stroke*="255,255,255"] {
+  stroke: rgba(0,0,0,0.2) !important;
+}
+
+/* "Tap a book to read" hint — darker on light bg */
+body.light-mode .tap-hint {
+  color: rgba(80,55,20,0.5) !important;
+}

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { gsap } from 'gsap'
 
 /**
@@ -115,11 +116,10 @@ function Lightbox({ film, onClose }) {
     gsap.to(boxRef.current, { scale: 0.94, opacity: 0, duration: 0.3 })
   }
 
-  return (
+  return createPortal(
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-[10000] flex items-center justify-center p-4 md:p-12"
-      style={{ PointerEvents: 'auto' }}
+      className="fixed inset-0 z-[99999] flex items-center justify-center p-4 md:p-12"
     >
       {/* Background layer decoupled from opacity math for bright/dark mode safety */}
       <div 
@@ -166,7 +166,8 @@ function Lightbox({ film, onClose }) {
           </p>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
 
@@ -278,55 +279,160 @@ function FilmCard({ film }) {
 }
 
 function ArchiveOverlay({ films, onClose }) {
-  const overlayRef = useRef(null)
+  const overlayRef  = useRef(null)
+  const headerRef   = useRef(null)
+  const gridRef     = useRef(null)
 
   useEffect(() => {
-    gsap.fromTo(overlayRef.current, { opacity: 0, backdropFilter: 'blur(0px)' }, { opacity: 1, backdropFilter: 'blur(32px)', duration: 0.6, ease: 'power3.out' })
+    document.body.style.overflow = 'hidden'
+    document.body.classList.add('overlay-open')
+
+    const tl = gsap.timeline()
+    tl.fromTo(overlayRef.current, { opacity: 0 }, { opacity: 1, duration: 0.5, ease: 'power3.out' })
+      .fromTo(headerRef.current,  { y: -20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: 'power3.out' }, '-=0.2')
+      .fromTo(gridRef.current.querySelectorAll('.vault-card'),
+        { opacity: 0, y: 24 },
+        { opacity: 1, y: 0, duration: 0.5, stagger: 0.06, ease: 'power3.out' },
+        '-=0.2'
+      )
+
     const onKey = (e) => e.key === 'Escape' && handleClose()
     window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      document.body.style.overflow = ''
+      document.body.classList.remove('overlay-open')
+    }
   }, [])
 
   const handleClose = () => {
-    gsap.to(overlayRef.current, { opacity: 0, backdropFilter: 'blur(0px)', duration: 0.4, onComplete: onClose })
+    gsap.to(overlayRef.current, {
+      opacity: 0, duration: 0.35, onComplete: () => {
+        document.body.style.overflow = ''
+        document.body.classList.remove('overlay-open')
+        onClose()
+      }
+    })
   }
 
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-[9900] flex flex-col pt-32 px-6 md:px-16 overflow-y-auto"
-      style={{ scrollbarWidth: 'none' }}
+      className="fixed inset-0 z-[9900] flex flex-col overflow-hidden"
+      style={{ background: 'var(--color-black)' }}
     >
-      {/* Background layer decoupled from opacity math */}
-      <div 
-        className="fixed inset-0 opacity-80 transition-colors duration-500 pointer-events-none" 
-        style={{ backgroundColor: 'var(--color-black)' }} 
-      />
+      {/* Subtle scan-line texture over entire vault */}
+      <div className="absolute inset-0 pointer-events-none z-0 opacity-[0.03]"
+        style={{
+          backgroundImage: 'repeating-linear-gradient(0deg,transparent,transparent 2px,#fff 2px,#fff 3px)',
+          backgroundSize: '100% 4px',
+        }} />
 
-      <div className="absolute top-12 right-12 z-50">
-        <button
-          onClick={handleClose}
-          className="font-mono text-film-gold text-xs tracking-widest uppercase hover:text-film-cream transition-colors"
-        >
-          [ Close ]
-        </button>
-      </div>
-      
-      <div className="max-w-7xl mx-auto w-full mb-16">
-        <p className="font-mono text-film-muted text-xs tracking-[0.4em] uppercase mb-4">Complete Archives</p>
-        <h2 className="font-serif text-5xl md:text-6xl text-film-cream">The Vault</h2>
-      </div>
+      {/* ── Top bar — film strip header ── */}
+      <div ref={headerRef} className="relative z-10 flex-shrink-0 border-b border-white/5"
+        style={{ background: 'var(--color-dark)' }}>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8 max-w-7xl mx-auto w-full pb-32">
-        {films.map((film) => (
-          <div key={film.id} className="group relative">
-            <FilmCard film={film} />
-            <div className="mt-4">
-              <h4 className="font-serif text-film-cream text-lg group-hover:text-film-gold transition-colors">{film.title}</h4>
-              <p className="font-mono text-film-muted text-xs mt-1">{film.genre} · {film.year}</p>
+        {/* Sprocket holes strip */}
+        <div className="flex items-center gap-3 px-6 py-2 border-b border-white/[0.04] overflow-hidden">
+          {Array.from({ length: 40 }).map((_, i) => (
+            <div key={i} className="w-3 h-4 rounded-sm border border-white/10 flex-shrink-0" />
+          ))}
+        </div>
+
+        {/* Header content */}
+        <div className="flex items-center justify-between px-6 md:px-12 py-4">
+          <div className="flex items-center gap-6">
+            {/* REC dot */}
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse shadow-[0_0_6px_rgba(220,38,38,0.8)]" />
+              <span className="font-mono text-[9px] text-red-500/70 tracking-widest uppercase">Rec</span>
+            </div>
+            <div className="w-px h-4 bg-white/10" />
+            <div>
+              <p className="font-mono text-film-gold text-[9px] tracking-[0.4em] uppercase">Complete Archives</p>
+              <h2 className="font-serif text-film-cream text-xl md:text-2xl tracking-wide mt-0.5">The Vault</h2>
             </div>
           </div>
-        ))}
+
+          {/* Right: frame count + close */}
+          <div className="flex items-center gap-6">
+            <span className="font-mono text-film-muted text-[9px] tracking-widest hidden md:block">
+              {films.length} TITLES
+            </span>
+            <div className="w-px h-4 bg-white/10 hidden md:block" />
+            <button
+              onClick={handleClose}
+              className="font-mono text-[10px] tracking-[0.3em] uppercase border border-white/15 px-3 py-1.5 text-film-muted hover:text-film-cream hover:border-film-gold/40 transition-all duration-300"
+              aria-label="Close vault"
+            >
+              [ ESC ]
+            </button>
+          </div>
+        </div>
+
+        {/* Bottom sprocket strip */}
+        <div className="flex items-center gap-3 px-6 py-2 border-t border-white/[0.04] overflow-hidden"
+          style={{ background: 'var(--color-dark)' }}>
+          {Array.from({ length: 40 }).map((_, i) => (
+            <div key={i} className="w-3 h-4 rounded-sm border border-white/10 flex-shrink-0" />
+          ))}
+        </div>
+      </div>
+
+      {/* ── Scrollable grid ── */}
+      <div className="relative z-10 flex-1 overflow-y-auto px-6 md:px-12 py-10"
+        style={{ scrollbarWidth: 'thin', scrollbarColor: '#333 transparent' }}>
+        <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-7xl mx-auto pb-16">
+          {films.map((film, idx) => (
+            <div key={film.id} className="vault-card group relative opacity-0">
+              {/* Frame number — top left corner */}
+              <div className="absolute -top-3 left-2 z-10 font-mono text-[8px] text-film-gold/50 tracking-widest">
+                {String(idx + 1).padStart(3, '0')}
+              </div>
+
+              {/* Film frame wrapper — corner marks + aspect ratio border */}
+              <div className="relative border border-white/[0.07] group-hover:border-film-gold/25 transition-colors duration-400"
+                style={{ background: 'var(--color-gray)' }}>
+
+                <FilmCard film={film} />
+
+                {/* Timecode overlay — bottom of frame */}
+                <div className="absolute bottom-0 left-0 right-0 px-3 py-1.5 flex justify-between items-center z-10"
+                  style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85), transparent)' }}>
+                  <span className="font-mono text-[7px] text-white/30 tracking-widest">
+                    {film.year}:{String(idx + 1).padStart(2,'0')}:00
+                  </span>
+                  <span className="font-mono text-[7px] text-film-gold/40 tracking-widest uppercase">
+                    {film.duration}
+                  </span>
+                </div>
+              </div>
+
+              {/* Film title below frame */}
+              <div className="mt-2.5 px-0.5 flex items-start justify-between gap-2">
+                <div>
+                  <h4 className="font-serif text-film-cream text-sm leading-tight group-hover:text-film-gold transition-colors duration-300">
+                    {film.title}
+                  </h4>
+                  <p className="font-mono text-film-muted/60 text-[9px] mt-0.5 tracking-wider uppercase">
+                    {film.genre}
+                  </p>
+                </div>
+                <span className="font-mono text-film-muted/30 text-[8px] flex-shrink-0 mt-0.5">{film.year}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Bottom film strip */}
+      <div className="relative z-10 flex-shrink-0 border-t border-white/5 py-2 overflow-hidden"
+        style={{ background: 'var(--color-dark)' }}>
+        <div className="flex items-center gap-3 px-6">
+          {Array.from({ length: 40 }).map((_, i) => (
+            <div key={i} className="w-3 h-4 rounded-sm border border-white/10 flex-shrink-0" />
+          ))}
+        </div>
       </div>
     </div>
   )

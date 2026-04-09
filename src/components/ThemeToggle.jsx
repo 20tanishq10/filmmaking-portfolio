@@ -2,22 +2,26 @@ import { useEffect, useState } from 'react'
 
 export default function ThemeToggle() {
   const [isLight, setIsLight] = useState(false)
+  const [hidden, setHidden] = useState(false)
 
   useEffect(() => {
-    // Check initial body class
     setIsLight(document.body.classList.contains('light-mode'))
+
+    // Watch for overlay-open class on body
+    const observer = new MutationObserver(() => {
+      setHidden(document.body.classList.contains('overlay-open'))
+    })
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] })
+    return () => observer.disconnect()
   }, [])
 
   const toggleTheme = () => {
     const nextMode = !isLight
     setIsLight(nextMode)
-    
-    if (nextMode) {
-      document.body.classList.add('light-mode')
-    } else {
-      document.body.classList.remove('light-mode')
-    }
+    document.body.classList.toggle('light-mode', nextMode)
   }
+
+  if (hidden) return null
 
   return (
     <button
