@@ -1,0 +1,132 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-black: #0a0a0a;
+    --color-black-transparent: rgba(10, 10, 10, 0);
+    --color-dark: #111111;
+    --color-gray: #1a1a1a;
+    --color-muted: #888888;
+    --color-gold: #c9a84c;
+    --color-cream: #f5f0e8;
+    --grid-line: rgba(255, 255, 255, 0.02);
+  }
+
+  .light-mode {
+    --color-black: #f5f0e8;
+    --color-black-transparent: rgba(245, 240, 232, 0);
+    --color-dark: #e8e0d0;
+    --color-gray: #d4ccc0;
+    --color-muted: #555555;
+    --color-gold: #a6843c;
+    --color-cream: #090909;
+    --grid-line: rgba(0, 0, 0, 0.05);
+  }
+}
+
+@layer utilities {
+  .bg-grid {
+    background-image: 
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 80px 80px;
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-black);
+  color: var(--color-cream);
+  overflow-x: hidden;
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+/* Minimal Custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-muted);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gold);
+}
+
+/* Film grain — now handled by animated canvas in FilmGrain.jsx */
+
+.cursor-line {
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  background: #c9a84c;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.video-card:hover .video-overlay {
+  opacity: 1;
+}
+
+.video-card:hover video {
+  opacity: 1;
+}
+
+section {
+  position: relative;
+}
+
+/* Smooth scroll wrapper — fixed position, full viewport */
+#smooth-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  will-change: transform;
+}
+
+/* Ambient sound bar pulse */
+@keyframes barPulse {
+  from { transform: scaleY(0.4); }
+  to   { transform: scaleY(1.2); }
+}
+
+/* Shelf scrollbar hidden */
+.shelf-scroll::-webkit-scrollbar { display: none; }
+
+/* Wipe panels */
+.wipe-panel {
+  will-change: transform;
+}
+
+/* Script reader iframe dark bg */
+iframe {
+  color-scheme: dark;
+}
+
+/* Dynamic Slugline Terminology based on theme */
+body .mode-ext-int::after { content: 'INT.'; }
+body.light-mode .mode-ext-int::after { content: 'EXT.'; }
+
+body .mode-day-night::after { content: 'NIGHT'; }
+body.light-mode .mode-day-night::after { content: 'DAY'; }
